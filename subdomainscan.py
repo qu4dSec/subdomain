@@ -1,24 +1,19 @@
 import requests
-import json
 
-# Replace YOUR_API_KEY with your actual VirusTotal API key
-API_KEY = 'virustotal-api here'
+API_ENDPOINT = 'https://www.virustotal.com/api/v3/domains/{}/subdomains'
+HEADERS = {'x-apikey': 'virustotal-api here'}
 
-# The domain to check for subdomains
-domain = 'domain address here'
+def get_subdomains(domain):
+    url = API_ENDPOINT.format(domain)
+    response = requests.get(url, headers=HEADERS)
+    if response.status_code == 200:
+        return [subdomain['id'] for subdomain in response.json()['data']]
+    else:
+        raise Exception('An error occurred while making the request')
 
-# Make a request to the VirusTotal API to get a list of subdomains
-response = requests.get(f'https://www.virustotal.com/api/v3/domains/{domain}/subdomains', headers={'x-apikey': API_KEY})
-
-# Check the status code of the response
-if response.status_code == 200:
-    # Load the JSON data from the response
-    data = json.loads(response.text)
-
-    # Print the list of subdomains
+if __name__ == '__main__':
+    domain = 'domain address here'
+    subdomains = get_subdomains(domain)
     print(f'Subdomains of {domain}:')
-    for subdomain in data['data']:
-        print(subdomain['id'])
-else:
-    # There was an error making the request
-    print('An error occurred while making the request')
+    for subdomain in subdomains:
+        print(subdomain)
